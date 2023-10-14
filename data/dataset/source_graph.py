@@ -9,7 +9,6 @@ from torch_geometric.data.data import Data as GeoData
 import pandas as pd
 import networkx as nx
 
-from data.tokenize import get_source_and_markdown_tokenizers
 from data.dataset import SourceGraphDatasetInterface
 
 

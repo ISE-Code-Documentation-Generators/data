@@ -9,7 +9,7 @@ class TokenizerInterface(abc.ABC):
 
 
 def get_source_and_markdown_tokenizers() -> typing.Tuple[TokenizerInterface, TokenizerInterface]:
-    from data.tokenize.markdown import MarkdownTokenizer
+    from data.tokenize.markdown import MarkdownToTextTokenizer
     from data.tokenize.source import SourceTokenizer
 
-    return SourceTokenizer(), MarkdownTokenizer()
+    return SourceTokenizer(), MarkdownToTextTokenizer()
