@@ -70,6 +70,9 @@ class SourceGraphDatasetWithPreprocess(SourceGraphDataset):
         self.graphs: typing.List[nx.DiGraph] = []
         for src in df['source']:
             self.graphs.append(self.src2graph(src))
+    
+    def __len__(self):
+        return len(self.graphs)
 
     def node2identifier(self, node):
         possible_identifiers = [
