@@ -27,7 +27,7 @@ setuptools.setup(
         'torchtext>=0.15.0',
         'spacy>=3.6.0',
         'pygments>=2.0.0',
-        'pandas>=2.0.0',
+        'pandas>=1.5.0',
         'networkx>=3.0',
         'markdown>=3.5',
         'beautifulsoup4>=4.12',
