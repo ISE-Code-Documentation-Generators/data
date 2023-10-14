@@ -92,11 +92,7 @@ class SourceGraphDatasetWithPreprocess(SourceGraphDataset):
         nodes = list(graph.nodes)
         nodes_rep = torch.Tensor([self.node2feature(n) for n in nodes])
         edges_rep = torch.Tensor([(nodes.index(e[0]), nodes.index(e[1])) for e in graph.edges])
-        try:
-            edges_rep = torch.einsum('ij->ji', edges_rep)
-        except Exception as e:
-            print('edges_rp: ', edges_rep.shape)
-            raise e
+        edges_rep = torch.einsum('ij->ji', edges_rep)
         nodes_rep = nodes_rep.unsqueeze(1)
         return nodes_rep, edges_rep
 
