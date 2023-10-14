@@ -3,7 +3,7 @@ from pygments import lex, token as pytoken
 from pygments.lexers import PythonLexer
 from pygments.token import Token
 
-from data.tokenize import TokenizerInterface
+from ise_cdg_data.tokenize import TokenizerInterface
 
 
 class SourceTokenizer(TokenizerInterface):

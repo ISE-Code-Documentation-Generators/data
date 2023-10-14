@@ -34,16 +34,16 @@ class Facade:
 
     def get_md4def(self, path: str) -> 'Md4DefDatasetInterface':
         if self.mode == self.DatasetMode.WITH_PREPROCESS:
-            from data.dataset.markdown_source import Md4DefDatasetWithPreprocess
+            from ise_cdg_data.dataset.markdown_source import Md4DefDatasetWithPreprocess
             return Md4DefDatasetWithPreprocess(path)
         else:
-            from data.dataset.markdown_source import Md4DefDatasetWithoutPreprocess
+            from ise_cdg_data.dataset.markdown_source import Md4DefDatasetWithoutPreprocess
             return Md4DefDatasetWithoutPreprocess(path)
     
     def get_source_graph(self, path: str, src_vocab: vocab.Vocab) -> 'SourceGraphDatasetInterface':
         if self.mode == self.DatasetMode.WITH_PREPROCESS:
-            from data.dataset.source_graph import SourceGraphDatasetWithPreprocess
+            from ise_cdg_data.dataset.source_graph import SourceGraphDatasetWithPreprocess
             return SourceGraphDatasetWithPreprocess(path, src_vocab)
         else:
-            from data.dataset.source_graph import SourceGraphDatasetWithoutPreprocess
+            from ise_cdg_data.dataset.source_graph import SourceGraphDatasetWithoutPreprocess
             return SourceGraphDatasetWithoutPreprocess(path, src_vocab)

@@ -7,8 +7,8 @@ from torchtext import vocab
 from torch.utils.data import Dataset
 import pandas as pd
 
-from data.tokenize import get_source_and_markdown_tokenizers
-from data.dataset import Md4DefDatasetInterface
+from ise_cdg_data.tokenize import get_source_and_markdown_tokenizers
+from ise_cdg_data.dataset import Md4DefDatasetInterface
 
 
 class Md4DefDataset(Md4DefDatasetInterface):

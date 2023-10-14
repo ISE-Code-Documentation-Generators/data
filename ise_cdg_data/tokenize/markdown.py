@@ -1,8 +1,8 @@
 import typing
 import spacy
 
-from data.tokenize import TokenizerInterface
-from data.tokenize.md2text import MarkdownToText
+from ise_cdg_data.tokenize import TokenizerInterface
+from ise_cdg_data.tokenize.md2text import MarkdownToText
 
 class MarkdownTokenizer(TokenizerInterface):
     spacy_eng = spacy.load('en_core_web_lg')

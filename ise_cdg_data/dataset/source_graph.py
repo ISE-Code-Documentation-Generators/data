@@ -9,7 +9,7 @@ from torch_geometric.data.data import Data as GeoData
 import pandas as pd
 import networkx as nx
 
-from data.dataset import SourceGraphDatasetInterface
+from ise_cdg_data.dataset import SourceGraphDatasetInterface
 
 
 class SourceGraphDataset(SourceGraphDatasetInterface):

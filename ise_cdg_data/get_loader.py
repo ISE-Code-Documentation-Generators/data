@@ -1,8 +1,8 @@
 from torch.utils.data import DataLoader
 from torch_geometric.loader import DataLoader as GeoDataLoader
 
-from data.dataset import Facade
-from data.padding_collate import PaddingCollate
+from ise_cdg_data.dataset import Facade
+from ise_cdg_data.padding_collate import PaddingCollate
 
 
 def get_loader(
