@@ -6,19 +6,17 @@ from ise_cdg_data.padding_collate import PaddingCollate
 
 
 def get_loader(
-    path,
+    dataset,
+    src_vocab,
+    md_vocab,
     batch_size,
     num_workers=0,
     shuffle=True,
     pin_memory=False,
-    is_dataset_processed=True,  
   ):
-    mode = Facade.DatasetMode.WITHOUT_PREPROCESS if is_dataset_processed else Facade.DatasetMode.WITH_PREPROCESS
-
-    dataset = Facade(mode).get_md4def(path)
     collate = PaddingCollate(
-        dataset.src_vocab.get_stoi()['<pad>'],
-        dataset.md_vocab.get_stoi()['<pad>'],
+        src_vocab.get_stoi()['<pad>'],
+        md_vocab.get_stoi()['<pad>'],
     )
     loader = DataLoader(
         dataset=dataset,
@@ -31,16 +29,12 @@ def get_loader(
     return loader, dataset
 
 def geo_get_loader(
-        path,
-        src_vocab,
-        batch_size,
-        num_workers=0,
-        shuffle=True,
-        pin_memory=False,
-        is_dataset_processed=True,
+    dataset,
+    batch_size,
+    num_workers=0,
+    shuffle=True,
+    pin_memory=False,
 ):
-    mode = Facade.DatasetMode.WITHOUT_PREPROCESS if is_dataset_processed else Facade.DatasetMode.WITH_PREPROCESS
-    dataset = Facade(mode).get_source_graph(path, src_vocab)
     loader = GeoDataLoader(
         dataset=dataset,
         batch_size=batch_size,
