@@ -26,7 +26,7 @@ def get_loader(
         pin_memory=pin_memory,
         collate_fn=collate,
     )
-    return loader, dataset
+    return loader
 
 def geo_get_loader(
     dataset,
@@ -42,4 +42,4 @@ def geo_get_loader(
         shuffle=shuffle,
         pin_memory=pin_memory,
     )
-    return loader, dataset
+    return loader
