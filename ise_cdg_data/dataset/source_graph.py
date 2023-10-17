@@ -27,7 +27,7 @@ class SourceGraphDataset(SourceGraphDatasetInterface):
         return len(self.df)
 
     @abc.abstractmethod
-    def get_nodes_edges_rep(self, index) -> tuple[torch.Tensor, torch.Tensor]:
+    def get_nodes_edges_rep(self, index) -> typing.Tuple[torch.Tensor, torch.Tensor]:
         pass
 
     @abc.abstractmethod
@@ -87,7 +87,7 @@ class SourceGraphDatasetWithPreprocess(SourceGraphDataset):
         id_ = self.node2identifier(node)
         return self.src_vocab.vocab.get_stoi().get(id_, self.src_vocab.vocab.get_stoi()['<unk>'])
     
-    def get_nodes_edges_rep(self, index) -> tuple[torch.Tensor, torch.Tensor]:
+    def get_nodes_edges_rep(self, index) -> typing.Tuple[torch.Tensor, torch.Tensor]:
         graph = self.graphs[index]
         nodes = list(graph.nodes)
         nodes_rep = torch.Tensor([self.node2feature(n) for n in nodes])
@@ -117,5 +117,5 @@ class SourceGraphDatasetWithoutPreprocess(SourceGraphDataset):
     def edges(self):
       return self.df['ast_edges']
 
-    def get_nodes_edges_rep(self, index) -> tuple[torch.Tensor, torch.Tensor]:
+    def get_nodes_edges_rep(self, index) -> typing.Tuple[torch.Tensor, torch.Tensor]:
         return torch.Tensor(self.nodes.iloc[index]), torch.Tensor(self.edges.iloc[index])
