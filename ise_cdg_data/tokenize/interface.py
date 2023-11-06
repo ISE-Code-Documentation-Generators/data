@@ -8,8 +8,12 @@ class TokenizerInterface(abc.ABC):
         pass
 
 
-def get_source_and_markdown_tokenizers() -> typing.Tuple[TokenizerInterface, TokenizerInterface]:
-    from ise_cdg_data.tokenize.markdown import MarkdownToTextTokenizer
+def get_source_and_markdown_tokenizers(cleanse_markdown=True) -> typing.Tuple[TokenizerInterface, TokenizerInterface]:
+    from ise_cdg_data.tokenize.text import MarkdownToTextTokenizer, TextTokenizer
     from ise_cdg_data.tokenize.source import SourceTokenizer
+    if cleanse_markdown:
+        markdown_tokenizer = MarkdownToTextTokenizer()
+    else:
+        markdown_tokenizer = TextTokenizer()
 
-    return SourceTokenizer(), MarkdownToTextTokenizer()
+    return SourceTokenizer(), markdown_tokenizer

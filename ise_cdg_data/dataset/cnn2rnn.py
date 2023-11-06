@@ -4,52 +4,30 @@ import re
 
 import torch
 from torchtext import vocab
+import pandas as pd
 
 from ise_cdg_data.dataset.interface import Md4DefDatasetInterface
 from ise_cdg_data.tokenize.interface import get_source_and_markdown_tokenizers
 
-def extract_headers(markdown_text):
-    # Parse the Markdown text using the markdown package
-    html_text = markdown.markdown(markdown_text)
-    
-    # Use regular expressions to extract headers from the HTML
-    header_tags = re.findall(r'<h(\d)>(.*?)<\/h\1>', html_text)
-    
-    headers = []
-    for tag, text in header_tags:
-        level = int(tag)
-        headers.append({'level': level, 'text': text})
-    
-    return headers
-
-def test_extract_headers():
-    # Example Markdown text
-    markdown_text = """
-    # This is a Level 1 Header
-    pjoijioji
-    ## This is a Level 2 Header
-
-
-    plkm
-
-    kmm
-    ### This is a Level 3 Header
-    #### This is a Level 4 Header
-    """
-
-    headers = extract_headers(markdown_text)
-
-    for header in headers:
-        print(f"Level {header['level']}: {header['text']}")
-
-
-
-
-import pandas as pd
 
 class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
     source_column = 'source'
     markdown_column = 'markdown'
+
+    @classmethod
+    def extract_headers(cls, markdown_text):
+        # Parse the Markdown text using the markdown package
+        html_text = markdown.markdown(markdown_text)
+        
+        # Use regular expressions to extract headers from the HTML
+        header_tags = re.findall(r'<h(\d)>(.*?)<\/h\1>', html_text)
+        
+        headers = []
+        for tag, text in header_tags:
+            level = int(tag)
+            headers.append({'level': level, 'text': text})
+        
+        return headers
 
     @property
     def source(self) -> pd.Series:
@@ -78,14 +56,13 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
         df = self.add_header_column(df)
         self.df = df
 
-        self.src_tokenizer, self.md_tokenizer = get_source_and_markdown_tokenizers()
+        self.src_tokenizer, self.md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
         self.src_vocab = self.vocab_factory(
             [self.src_tokenizer(src) for src in self.source],
             min_freq=3,
         )
         self.md_vocab = self.vocab_factory(
             [self.md_tokenizer(md) for md in self.header],
-            min_freq=2,
         )
 
 
@@ -122,6 +99,6 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
         ])
 
     def __getitem__(self, index) -> typing.Tuple[torch.Tensor, torch.Tensor]:
-        header = self.df['header'].iloc[index]
-        source = self.df['source'].iloc[index]
+        header = self.header.iloc[index]
+        source = self.source.iloc[index]
         return self.get_source_tensor(source), self.get_header_tensor(header)
