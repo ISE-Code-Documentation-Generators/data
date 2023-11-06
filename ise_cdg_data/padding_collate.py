@@ -19,20 +19,16 @@ class PaddingCollate:
         return inputs, targets
 
 
-class CNN2RNNCollocate:
+class CNN2RNNCollate:
     def __init__(
         self,
         source_pad_idx,
         header_pad_idx,
         source_expected_sequence_length,
-        *,
-        batch_first=True
     ):
         self.source_pad_idx = source_pad_idx
         self.header_pad_idx = header_pad_idx
         self.source_expected_sequence_length = source_expected_sequence_length
-        # -----
-        self.batch_first = batch_first
 
     def __call__(self, batch):
         # pad for data -> pad for cnn
@@ -51,7 +47,7 @@ class CNN2RNNCollocate:
         return (sources, headers)
 
     def __pad(self, pad_idx, texts):
-        return pad_sequence(texts, batch_first=self.batch_first, padding_value=pad_idx)
+        return pad_sequence(texts, batch_first=True, padding_value=pad_idx)
 
     @classmethod
     def __pad_to_length(cls, raw_input, expected_length):
