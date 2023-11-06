@@ -9,6 +9,7 @@ import pandas as pd
 
 from ise_cdg_data.dataset.interface import Md4DefDatasetInterface
 from ise_cdg_data.tokenize.interface import get_source_and_markdown_tokenizers
+from ise_cdg_data.vocab.embedding_adapter import EmbeddingAdapter
 
 
 class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
@@ -41,12 +42,12 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
     @classmethod
     def vocab_factory(
         cls, tokenized_texts: typing.List[typing.Sequence[str]], min_freq=1
-    ) -> vocab.Vocab:
+    ) -> 'vocab.Vocab | EmbeddingAdapter':
         vocab_ = vocab.build_vocab_from_iterator(tokenized_texts, specials=[
             '<pad>', '<sos>', '<eos>', '<unk>'
         ], min_freq=min_freq)
         vocab_.set_default_index(vocab_.get_stoi()['<unk>'])
-        return vocab_
+        return EmbeddingAdapter(vocab_)
 
     def __init__(self, path: str, src_max_length):
         super().__init__()
@@ -62,7 +63,7 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
         self.src_tokenizer, self.md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
         self.src_vocab = self.vocab_factory(
             [self.src_tokenizer(src) for src in self.source],
-            min_freq=3,
+            min_freq=3, 
         )
         self.md_vocab = self.vocab_factory(
             [self.md_tokenizer(md) for md in self.header],
