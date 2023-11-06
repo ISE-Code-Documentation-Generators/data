@@ -51,3 +51,9 @@ class Facade:
         else:
             from ise_cdg_data.dataset.source_graph import SourceGraphDatasetWithoutPreprocess
             return SourceGraphDatasetWithoutPreprocess(path, src_vocab)
+    
+    def get_cnn2rnn(self, path: str, src_max_length: int) -> 'Md4DefDatasetInterface':
+        if self.mode == self.DatasetMode.WITH_PREPROCESS:
+            from ise_cdg_data.dataset.cnn2rnn import CNN2RNNDatasetWithPreprocess
+            return CNN2RNNDatasetWithPreprocess(path, src_max_length)
+        assert False, "mode is not supported"

@@ -14,7 +14,7 @@ from ise_cdg_data.vocab.embedding_adapter import EmbeddingAdapter
 
 class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
     source_column = 'source'
-    markdown_column = 'markdown'
+    header_column = 'header'
 
     @classmethod
     def extract_headers(cls, markdown_text):
@@ -33,30 +33,30 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
 
     @property
     def source(self) -> pd.Series:
-        return self.df['source']
+        return self.df[self.source_column]
 
     @property
     def header(self) -> pd.Series:
-        return self.df['header']
+        return self.df[self.header_column]
 
     @classmethod
     def vocab_factory(
         cls, tokenized_texts: typing.List[typing.Sequence[str]], min_freq=1
-    ) -> 'vocab.Vocab | EmbeddingAdapter':
+    ) -> 'vocab.Vocab':
         vocab_ = vocab.build_vocab_from_iterator(tokenized_texts, specials=[
             '<pad>', '<sos>', '<eos>', '<unk>'
         ], min_freq=min_freq)
         vocab_.set_default_index(vocab_.get_stoi()['<unk>'])
-        return EmbeddingAdapter(vocab_)
+        return vocab_
 
-    def __init__(self, path: str, src_max_length):
+    def __init__(self, path: str, src_max_length: int):
         super().__init__()
         self.path = path
         self.src_max_length = src_max_length
 
         df = pd.read_csv(self.path)
-        df = df[[self.source_column, self.markdown_column]]
         df = self.add_header_column(df)
+        df = df[[self.source_column, self.header_column]]
         self.df = df
         self.filter_df()
 
@@ -71,7 +71,7 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
 
 
     def add_header_column(self, df):
-        markdown_headers = df[self.markdown_column].apply(self.extract_headers)
+        markdown_headers = df['markdown'].apply(self.extract_headers)
         markdown_headers = markdown_headers.apply(lambda headers: list(map(lambda header: header['text'], headers)))
         df = df[markdown_headers.apply(lambda headers: len(headers) != 0)]
         df = df.assign(header=markdown_headers).explode('header')
