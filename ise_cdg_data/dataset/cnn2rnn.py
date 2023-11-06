@@ -9,7 +9,6 @@ import pandas as pd
 
 from ise_cdg_data.dataset.interface import Md4DefDatasetInterface
 from ise_cdg_data.tokenize.interface import get_source_and_markdown_tokenizers
-from ise_cdg_data.vocab.embedding_adapter import EmbeddingAdapter
 
 
 class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
