@@ -47,14 +47,16 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
         vocab_.set_default_index(vocab_.get_stoi()['<unk>'])
         return vocab_
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, src_max_length):
         super().__init__()
         self.path = path
+        self.src_max_length = src_max_length
 
         df = pd.read_csv(self.path)
         df = df[[self.source_column, self.markdown_column]]
         df = self.add_header_column(df)
         self.df = df
+        self.filter_df()
 
         self.src_tokenizer, self.md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
         self.src_vocab = self.vocab_factory(
@@ -67,15 +69,15 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
 
 
     def add_header_column(self, df):
-        markdown_headers = df[self.markdown_column].apply(extract_headers)
+        markdown_headers = df[self.markdown_column].apply(self.extract_headers)
         markdown_headers = markdown_headers.apply(lambda headers: list(map(lambda header: header['text'], headers)))
         df = df[markdown_headers.apply(lambda headers: len(headers) != 0)]
         df = df.assign(header=markdown_headers).explode('header')
         return df
     
-    def filter_source(self, tokenizer, max_length):
+    def filter_source(self, tokenizer):
       tokenized_rows = self.df[self.source_column].apply(tokenizer.tokenize).apply(len)
-      self.df = self.df[tokenized_rows <= max_length]
+      self.df = self.df[tokenized_rows <= self.src_max_length]
 
     def filter_header(self, tokenizer):
       tokenized_rows = self.df['header'].apply(tokenizer.tokenize).apply(len)
@@ -83,6 +85,10 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
       max_length = tokenized_rows.iloc[int(len(self.df) *  0.95)]
       self.df = self.df[tokenized_rows <= max_length]
 
+    def filter_df(self):
+        src_tokenizer, md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
+        self.filter_source(src_tokenizer)
+        self.filter_header(md_tokenizer)
 
     def get_source_tensor(self, row: typing.Any) -> torch.Tensor:
         return torch.tensor([
