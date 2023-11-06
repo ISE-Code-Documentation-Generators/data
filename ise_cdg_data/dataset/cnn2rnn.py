@@ -1,7 +1,12 @@
+import typing
 import markdown
 import re
 
+import torch
+from torchtext import vocab
+
 from ise_cdg_data.dataset.interface import Md4DefDatasetInterface
+from ise_cdg_data.tokenize.interface import get_source_and_markdown_tokenizers
 
 def extract_headers(markdown_text):
     # Parse the Markdown text using the markdown package
@@ -46,6 +51,24 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
     source_column = 'source'
     markdown_column = 'markdown'
 
+    @property
+    def source(self) -> pd.Series:
+        return self.df['source']
+
+    @property
+    def header(self) -> pd.Series:
+        return self.df['header']
+
+    @classmethod
+    def vocab_factory(
+        cls, tokenized_texts: typing.List[typing.Sequence[str]], min_freq=1
+    ) -> vocab.Vocab:
+        vocab_ = vocab.build_vocab_from_iterator(tokenized_texts, specials=[
+            '<pad>', '<sos>', '<eos>', '<unk>'
+        ], min_freq=min_freq)
+        vocab_.set_default_index(vocab_.get_stoi()['<unk>'])
+        return vocab_
+
     def __init__(self, path: str):
         super().__init__()
         self.path = path
@@ -54,7 +77,17 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
         df = df[[self.source_column, self.markdown_column]]
         df = self.add_header_column(df)
         self.df = df
-        print(self.df.head())
+
+        self.src_tokenizer, self.md_tokenizer = get_source_and_markdown_tokenizers()
+        self.src_vocab = self.vocab_factory(
+            [self.src_tokenizer(src) for src in self.source],
+            min_freq=3,
+        )
+        self.md_vocab = self.vocab_factory(
+            [self.md_tokenizer(md) for md in self.header],
+            min_freq=2,
+        )
+
 
     def add_header_column(self, df):
         markdown_headers = df[self.markdown_column].apply(extract_headers)
@@ -62,14 +95,33 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
         df = df[markdown_headers.apply(lambda headers: len(headers) != 0)]
         df = df.assign(header=markdown_headers).explode('header')
         return df
-       
     
     def filter_source(self, tokenizer, max_length):
-      tokenized_rows = self.sources.apply(tokenizer.tokenize).apply(len)
+      tokenized_rows = self.df[self.source_column].apply(tokenizer.tokenize).apply(len)
       self.df = self.df[tokenized_rows <= max_length]
 
-    def filter_markdown(self, tokenizer):
-      tokenized_rows = self.markdowns.apply(tokenizer.tokenize).apply(len)
+    def filter_header(self, tokenizer):
+      tokenized_rows = self.df['header'].apply(tokenizer.tokenize).apply(len)
       tokenized_rows = tokenized_rows.sort_values()
-      max_length = tokenized_rows.iloc[math.floor(len(self) *  0.95)]
+      max_length = tokenized_rows.iloc[int(len(self.df) *  0.95)]
       self.df = self.df[tokenized_rows <= max_length]
+
+
+    def get_source_tensor(self, row: typing.Any) -> torch.Tensor:
+        return torch.tensor([
+            self.src_vocab.vocab.get_stoi()['<sos>'],
+            *self.src_vocab(self.src_tokenizer(row)),
+            self.src_vocab.vocab.get_stoi()['<eos>'],
+        ])
+
+    def get_header_tensor(self, row: typing.Any) -> torch.Tensor:
+        return torch.tensor([
+            self.src_vocab.vocab.get_stoi()['<sos>'],
+            *self.md_vocab(self.md_tokenizer(row)),
+            self.src_vocab.vocab.get_stoi()['<eos>'],
+        ])
+
+    def __getitem__(self, index) -> typing.Tuple[torch.Tensor, torch.Tensor]:
+        header = self.df['header'].iloc[index]
+        source = self.df['source'].iloc[index]
+        return self.get_source_tensor(source), self.get_header_tensor(header)
