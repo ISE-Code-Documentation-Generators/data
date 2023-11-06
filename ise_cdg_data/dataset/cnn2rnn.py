@@ -108,3 +108,6 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
         header = self.header.iloc[index]
         source = self.source.iloc[index]
         return self.get_source_tensor(source), self.get_header_tensor(header)
+    
+    def __len__(self) -> int:
+        return len(self.df)

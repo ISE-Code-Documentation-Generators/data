@@ -12,6 +12,10 @@ from torch_geometric.data.data import Data as GeoData
 class Md4DefDatasetInterface(Dataset):
 
     @abc.abstractmethod
+    def __len__(self) -> int:
+        pass
+
+    @abc.abstractmethod
     def __getitem__(self, index) -> typing.Tuple[torch.Tensor, torch.Tensor]:
         pass
 
