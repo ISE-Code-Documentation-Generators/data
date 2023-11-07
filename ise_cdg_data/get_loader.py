@@ -1,8 +1,6 @@
 from torch.utils.data import DataLoader
 from torch_geometric.loader import DataLoader as GeoDataLoader
-from ise_cdg_data import vocab
 
-from ise_cdg_data.dataset import Facade
 from ise_cdg_data.padding_collate import CNN2RNNCollate, PaddingCollate
 
 
