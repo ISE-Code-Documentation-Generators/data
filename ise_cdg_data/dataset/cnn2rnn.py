@@ -84,7 +84,8 @@ class CNN2RNNDatasetWithPreprocess(Md4DefDatasetInterface):
       tokenized_rows = self.df['header'].apply(tokenizer).apply(len)
       max_length_tokenized_rows = tokenized_rows.sort_values()
       max_length = max_length_tokenized_rows.iloc[math.floor(len(self.df) *  0.95)]
-      self.df = self.df[tokenized_rows <= max_length]
+      min_length = 3
+      self.df = self.df[min_length <= tokenized_rows <= max_length]
 
     def filter_df(self):
         src_tokenizer, md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
