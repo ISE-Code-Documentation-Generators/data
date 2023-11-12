@@ -80,7 +80,7 @@ class CNN2RNNWithFeaturesCollate:
         )  # shape: (max_seq_length, batch)
 
         features = [item[1] for item in batch] # shape: (batch, features_length)
-        features = torch.tensor(features)
+        features = torch.stack(features)
 
         # pad for data
         headers = [item[2] for item in batch]  # shape: (batch)
