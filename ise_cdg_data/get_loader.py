@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader
 from torch_geometric.loader import DataLoader as GeoDataLoader
 
-from ise_cdg_data.padding_collate import CNN2RNNCollate, PaddingCollate
+from ise_cdg_data.padding_collate import CNN2RNNCollate, CNN2RNNWithFeaturesCollate, PaddingCollate
 
 
 def get_loader(
@@ -56,6 +56,31 @@ def get_cnn2rnn_loader(
     pin_memory=False,
 ):
     collate = CNN2RNNCollate(
+        src_vocab.get_stoi()["<pad>"],
+        header_vocab.get_stoi()["<pad>"],
+        source_expected_sequence_length,
+    )
+    loader = DataLoader(
+        dataset=dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        shuffle=shuffle,
+        pin_memory=pin_memory,
+        collate_fn=collate,
+    )
+    return loader
+
+def get_cnn2rnn_with_features_loader(
+    dataset,
+    src_vocab,
+    header_vocab,
+    source_expected_sequence_length,
+    batch_size,
+    num_workers=0,
+    shuffle=True,
+    pin_memory=False,
+):
+    collate = CNN2RNNWithFeaturesCollate(
         src_vocab.get_stoi()["<pad>"],
         header_vocab.get_stoi()["<pad>"],
         source_expected_sequence_length,
