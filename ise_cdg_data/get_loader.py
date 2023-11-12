@@ -70,7 +70,7 @@ def get_cnn2rnn_loader(
     )
     return loader
 
-def get_cnn2rnn_with_features_loader(
+def get_cnn2rnn_features_loader(
     dataset,
     src_vocab,
     header_vocab,

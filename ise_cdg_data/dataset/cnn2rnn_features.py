@@ -11,7 +11,7 @@ from ise_cdg_data.dataset.interface import Md4DefDatasetInterface
 from ise_cdg_data.tokenize.interface import get_source_and_markdown_tokenizers
 
 
-class CNN2RNNWithFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
+class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
     source_column = 'source'
     header_column = 'header'
     features_column = 'features'
@@ -92,7 +92,7 @@ class CNN2RNNWithFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
       self.df = self.df[tokenized_rows <= self.src_max_length]
 
     def filter_header_max_length(self, tokenizer):
-      tokenized_rows = self.df[self.header_column].apply(tokenizer).apply(len)
+      tokenized_rows: 'pd.Series' = self.df[self.header_column].apply(tokenizer).apply(len)
       max_length_tokenized_rows = tokenized_rows.sort_values()
       max_length = max_length_tokenized_rows.iloc[math.floor(len(self.df) *  0.95)]
       self.df = self.df[tokenized_rows <= max_length]
