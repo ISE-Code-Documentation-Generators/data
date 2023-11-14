@@ -106,6 +106,7 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         src_tokenizer, md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
         self.filter_source(src_tokenizer)
         self.filter_header_max_length(md_tokenizer)
+        self.filter_header_min_length(md_tokenizer)
 
     def get_source_tensor(self, row: typing.Any) -> torch.Tensor:
         return torch.tensor([
