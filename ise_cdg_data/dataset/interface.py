@@ -22,6 +22,10 @@ class Md4DefDatasetInterface(Dataset):
 
 class SourceGraphDatasetInterface(Dataset):
     @abc.abstractmethod
+    def __len__(self) -> int:
+        pass
+
+    @abc.abstractmethod
     def __getitem__(self, index) -> GeoData:
         pass
 
