@@ -81,6 +81,7 @@ class CNN2RNNWithFeaturesCollate:
 
         features = [item[1] for item in batch] # shape: (batch, features_length)
         features = torch.stack(features)
+        features = torch.einsum('be->eb', features) # shape: (features_length, batch)
 
         # pad for data
         headers = [item[2] for item in batch]  # shape: (batch)
