@@ -1,6 +1,9 @@
 from .abstraction import FeaturesExtractor
 import pandas as pd
 
+from tqdm.notebook import tqdm
+tqdm.pandas()
+
 from .source_utils import *
 class SourceFeaturesExtractor(FeaturesExtractor):
     def __init__(self) -> None:
