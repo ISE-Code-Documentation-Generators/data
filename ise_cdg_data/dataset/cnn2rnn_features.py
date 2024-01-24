@@ -33,7 +33,7 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
     def features(self) -> pd.Series:
         return self.df[self.features_column]        
 
-    def __init__(self, path: str, src_max_length: int, use_header: bool):
+    def __init__(self, path: str, src_max_length: int, *, use_header: bool=True):
         super().__init__()
         self.path = path
         self.src_max_length = src_max_length
