@@ -6,6 +6,7 @@ import re
 import torch
 from torchtext import vocab
 import pandas as pd
+from ise_cdg_data.dataset.features_extractor import get_source_features_extractor
 
 from ise_cdg_data.dataset.interface import Md4DefDatasetInterface
 from ise_cdg_data.tokenize.interface import get_source_and_markdown_tokenizers
@@ -64,6 +65,8 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         self.src_max_length = src_max_length
 
         df = pd.read_csv(self.path)
+        print(df.columns)
+        df[self.features_column] = get_source_features_extractor().extract(df['source'])
         df = self.add_header_column(df)
         df = df[[self.source_column, self.header_column, self.features_column]]
         self.df = df
