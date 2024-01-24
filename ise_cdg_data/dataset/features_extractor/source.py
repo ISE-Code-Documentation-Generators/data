@@ -73,6 +73,8 @@ class SourceFeaturesExtractor(FeaturesExtractor):
 
         ### ---
 
+        print("code_df source")
+        print(code_df['source'])
         code_df['API'] = code_df['source'].apply(lambda x: capture_imports(str(x)))
         print("code_df API")
         print(code_df['API'])
