@@ -62,8 +62,8 @@ class Facade:
             return CNN2RNNDatasetWithPreprocess(path, src_max_length)
         assert False, "mode is not supported"
 
-    def get_cnn2rnn_features(self, path: str, src_max_length: int, *args) -> 'Md4DefDatasetInterface':
+    def get_cnn2rnn_features(self, path: str, src_max_length: int, *args, **kwargs) -> 'Md4DefDatasetInterface':
         if self.mode == self.DatasetMode.WITH_PREPROCESS:
             from ise_cdg_data.dataset.cnn2rnn_features import CNN2RNNFeaturesDatasetWithPreprocess
-            return CNN2RNNFeaturesDatasetWithPreprocess(path, src_max_length, *args)
+            return CNN2RNNFeaturesDatasetWithPreprocess(path, src_max_length, *args, **kwargs)
         assert False, "mode is not supported"
