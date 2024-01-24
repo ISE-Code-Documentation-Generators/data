@@ -89,6 +89,7 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
 
 
     def add_header_column(self, df):
+        df = df[df['markdown']] # null markdown exists :)
         markdown_headers = df['markdown'].apply(self.extract_headers)
         markdown_headers = markdown_headers.apply(lambda headers: list(map(lambda header: header['text'], headers)))
         df = df[markdown_headers.apply(lambda headers: len(headers) != 0)]
