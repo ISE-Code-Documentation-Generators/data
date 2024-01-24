@@ -21,26 +21,6 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
     
     features_column = 'features'
 
-    @classmethod
-    def extract_headers(cls, markdown_text):
-        try:
-            # Parse the Markdown text using the markdown package
-            html_text = markdown.markdown(markdown_text)
-        except Exception as e:
-            print('markdown text')
-            print(markdown_text)
-            raise e
-        
-        # Use regular expressions to extract headers from the HTML
-        header_tags = re.findall(r'<h(\d)>(.*?)<\/h\1>', html_text)
-        
-        headers = []
-        for tag, text in header_tags:
-            level = int(tag)
-            headers.append({'level': level, 'text': text})
-        
-        return headers
-
     @property
     def source(self) -> pd.Series:
         return self.df[self.source_column]
@@ -51,18 +31,7 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
     
     @property
     def features(self) -> pd.Series:
-        return self.df[self.features_column]
-
-    @classmethod
-    def vocab_factory(
-        cls, tokenized_texts: typing.List[typing.Sequence[str]], min_freq=1
-    ) -> 'vocab.Vocab':
-        vocab_ = vocab.build_vocab_from_iterator(tokenized_texts, specials=[
-            '<pad>', '<sos>', '<eos>', '<unk>'
-        ], min_freq=min_freq)
-        vocab_.set_default_index(vocab_.get_stoi()['<unk>'])
-        return vocab_
-        
+        return self.df[self.features_column]        
 
     def __init__(self, path: str, src_max_length: int, use_header: bool):
         super().__init__()
@@ -90,7 +59,19 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
             [self.md_tokenizer(md) for md in self.md],
         )
 
+    # TODO Refactor: this can be put in another place, too
+    @classmethod
+    def vocab_factory(
+        cls, tokenized_texts: typing.List[typing.Sequence[str]], min_freq=1
+    ) -> 'vocab.Vocab':
+        vocab_ = vocab.build_vocab_from_iterator(tokenized_texts, specials=[
+            '<pad>', '<sos>', '<eos>', '<unk>'
+        ], min_freq=min_freq)
+        vocab_.set_default_index(vocab_.get_stoi()['<unk>'])
+        return vocab_
 
+
+    # TODO Refactor: put this "Augmenter" to another place
     def add_header_column(self, df):
         markdown_headers = df['markdown'].apply(self.extract_headers)
         markdown_headers = markdown_headers.apply(lambda headers: list(map(lambda header: header['text'], headers)))
@@ -98,6 +79,28 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         df = df.assign(header=markdown_headers).explode('header')
         return df
     
+    @classmethod
+    def extract_headers(cls, markdown_text):
+        try:
+            # Parse the Markdown text using the markdown package
+            html_text = markdown.markdown(markdown_text)
+        except Exception as e:
+            print('markdown text')
+            print(markdown_text)
+            raise e
+        
+        # Use regular expressions to extract headers from the HTML
+        header_tags = re.findall(r'<h(\d)>(.*?)<\/h\1>', html_text)
+        
+        headers = []
+        for tag, text in header_tags:
+            level = int(tag)
+            headers.append({'level': level, 'text': text})
+        
+        return headers
+    
+
+    # TODO Refactor: put these "filterers" to another place
     def filter_source(self, tokenizer):
       tokenized_rows = self.df[self.source_column].apply(tokenizer).apply(len)
       self.df = self.df[tokenized_rows <= self.src_max_length]
