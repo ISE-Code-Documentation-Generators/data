@@ -40,16 +40,16 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         self.use_header = use_header
 
         df = pd.read_csv(self.path)
+
         df = df[df['markdown'].apply(type) == str] # null markdown exists :)
         df = df[df['markdown_text'].apply(type) == str] # null markdown exists :)
-
-        df[self.features_column] = get_source_features_extractor().extract(df['source'])
-        if self.use_header:
-            df = self.add_header_column(df)
-        
-        df = df[[self.source_column, self.md_column, self.features_column]]
         self.df = df
+        if self.use_header:
+            self.df = self.add_header_column(self.df)
         self.filter_df()
+        
+        self.df[self.features_column] = get_source_features_extractor().extract(self.df['source'])
+        self.df = self.df[[self.source_column, self.md_column, self.features_column]]
 
         self.src_tokenizer, self.md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
         self.src_vocab = self.vocab_factory(
