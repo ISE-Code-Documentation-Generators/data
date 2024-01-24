@@ -19,6 +19,8 @@ class SourceFeaturesExtractor(FeaturesExtractor):
         return list(row.drop(columns=['API', 'source']))
         
     def extract_feature_columns(self, code_df):
+        # TODO Refactor: make a class for each set of features
+        # TODO Refactor: refine "progress_apply" behavior
         code_df["LOC"] = code_df["source"].apply(
             lambda x: x.count("\n") + 1 if type(x) == str else 0
         )
