@@ -275,15 +275,9 @@ import collections
 def eap_score_function_generator(api_column: "pd.Series"):
     l = api_column.values.tolist()
     flat_list = [item for sublist in l for item in sublist]
-    print("flat_list")
-    print(flat_list)
     eap_dict = dict(collections.Counter(flat_list))
-    print("eap_dict")
-    print(eap_dict)
     eap_score_dict = dict(sorted(eap_dict.items(), key=lambda item: item[1], reverse=True))
     # TODO should find max_freq based on the data
-    print("eap_score_dict")
-    print(eap_score_dict)
     max_freq = eap_dict['sklearn']
     for k, v in eap_score_dict.items():
         eap_score_dict[k] = v / max_freq
