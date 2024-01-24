@@ -19,10 +19,13 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
 
     @classmethod
     def extract_headers(cls, markdown_text):
-        print('markdown text')
-        print(markdown_text)
-        # Parse the Markdown text using the markdown package
-        html_text = markdown.markdown(markdown_text)
+        try:
+            # Parse the Markdown text using the markdown package
+            html_text = markdown.markdown(markdown_text)
+        except Exception as e:
+            print('markdown text')
+            print(markdown_text)
+            raise e
         
         # Use regular expressions to extract headers from the HTML
         header_tags = re.findall(r'<h(\d)>(.*?)<\/h\1>', html_text)
