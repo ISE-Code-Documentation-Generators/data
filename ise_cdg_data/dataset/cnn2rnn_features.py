@@ -14,7 +14,11 @@ from ise_cdg_data.tokenize.interface import get_source_and_markdown_tokenizers
 
 class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
     source_column = 'source'
-    header_column = 'header'
+
+    @property
+    def md_column(self):
+        return 'header' if self.use_header else 'markdown_text'
+    
     features_column = 'features'
 
     @classmethod
@@ -42,8 +46,8 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         return self.df[self.source_column]
 
     @property
-    def header(self) -> pd.Series:
-        return self.df[self.header_column]
+    def md(self) -> pd.Series:
+        return self.df[self.md_column]
     
     @property
     def features(self) -> pd.Series:
@@ -60,16 +64,20 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         return vocab_
         
 
-    def __init__(self, path: str, src_max_length: int):
+    def __init__(self, path: str, src_max_length: int, use_header: bool):
         super().__init__()
         self.path = path
         self.src_max_length = src_max_length
+        self.use_header = use_header
 
         df = pd.read_csv(self.path)
-        print(df.columns)
+        df = df[df['markdown'].apply(type) == str] # null markdown exists :)
+
         df[self.features_column] = get_source_features_extractor().extract(df['source'])
-        df = self.add_header_column(df)
-        df = df[[self.source_column, self.header_column, self.features_column]]
+        if self.use_header:
+            df = self.add_header_column(df)
+        
+        df = df[[self.source_column, self.md_column, self.features_column]]
         self.df = df
         self.filter_df()
 
@@ -79,12 +87,11 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
             min_freq=3, 
         )
         self.md_vocab = self.vocab_factory(
-            [self.md_tokenizer(md) for md in self.header],
+            [self.md_tokenizer(md) for md in self.md],
         )
 
 
     def add_header_column(self, df):
-        df = df[df['markdown'].apply(type) == str] # null markdown exists :)
         markdown_headers = df['markdown'].apply(self.extract_headers)
         markdown_headers = markdown_headers.apply(lambda headers: list(map(lambda header: header['text'], headers)))
         df = df[markdown_headers.apply(lambda headers: len(headers) != 0)]
@@ -95,22 +102,22 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
       tokenized_rows = self.df[self.source_column].apply(tokenizer).apply(len)
       self.df = self.df[tokenized_rows <= self.src_max_length]
 
-    def filter_header_max_length(self, tokenizer):
-      tokenized_rows: 'pd.Series' = self.df[self.header_column].apply(tokenizer).apply(len)
+    def filter_md_max_length(self, tokenizer):
+      tokenized_rows: 'pd.Series' = self.md.apply(tokenizer).apply(len)
       max_length_tokenized_rows = tokenized_rows.sort_values()
       max_length = max_length_tokenized_rows.iloc[math.floor(len(self.df) *  0.95)]
       self.df = self.df[tokenized_rows <= max_length]
 
-    def filter_header_min_length(self, tokenizer):
+    def filter_md_min_length(self, tokenizer):
       min_length = 3
-      tokenized_rows = self.df[self.header_column].apply(tokenizer).apply(len)
+      tokenized_rows = self.md.apply(tokenizer).apply(len)
       self.df = self.df[tokenized_rows >= min_length]
 
     def filter_df(self):
         src_tokenizer, md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
         self.filter_source(src_tokenizer)
-        self.filter_header_max_length(md_tokenizer)
-        self.filter_header_min_length(md_tokenizer)
+        self.filter_md_max_length(md_tokenizer)
+        self.filter_md_min_length(md_tokenizer)
 
     def get_source_tensor(self, row: typing.Any) -> torch.Tensor:
         return torch.tensor([
@@ -122,7 +129,7 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
     def get_features_tensor(self, row: typing.Any) -> torch.Tensor:
         return torch.tensor(row)
 
-    def get_header_tensor(self, row: typing.Any) -> torch.Tensor:
+    def get_md_tensor(self, row: typing.Any) -> torch.Tensor:
         return torch.tensor([
             self.src_vocab.vocab.get_stoi()['<sos>'],
             *self.md_vocab(self.md_tokenizer(row)),
@@ -130,10 +137,10 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         ])
 
     def __getitem__(self, index) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        header = self.header.iloc[index]
+        header = self.md.iloc[index]
         features = self.features.iloc[index]
         source = self.source.iloc[index]
-        return self.get_source_tensor(source), self.get_features_tensor(features), self.get_header_tensor(header)
+        return self.get_source_tensor(source), self.get_features_tensor(features), self.get_md_tensor(header)
     
     def __len__(self) -> int:
         return len(self.df)
