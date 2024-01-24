@@ -74,7 +74,8 @@ class SourceFeaturesExtractor(FeaturesExtractor):
         ### ---
 
         code_df['API'] = code_df['source'].apply(lambda x: capture_imports(str(x)))
-
+        print("code_df API")
+        print(code_df['API'])
         eap_score = eap_score_function_generator(code_df['API'])
         code_df['EAP'] = code_df['API'].apply(lambda x: eap_score(set(x)))
 
