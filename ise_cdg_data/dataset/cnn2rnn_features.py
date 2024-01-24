@@ -41,6 +41,7 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
 
         df = pd.read_csv(self.path)
         df = df[df['markdown'].apply(type) == str] # null markdown exists :)
+        df = df[df['markdown_text'].apply(type) == str] # null markdown exists :)
 
         df[self.features_column] = get_source_features_extractor().extract(df['source'])
         if self.use_header:
