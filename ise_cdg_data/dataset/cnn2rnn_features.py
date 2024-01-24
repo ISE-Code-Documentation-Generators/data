@@ -58,10 +58,6 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         ], min_freq=min_freq)
         vocab_.set_default_index(vocab_.get_stoi()['<unk>'])
         return vocab_
-    
-    @classmethod
-    def transform_to_list(cls, series: pd.Series) -> pd.Series:
-        return series.apply(eval)
         
 
     def __init__(self, path: str, src_max_length: int):
@@ -76,7 +72,6 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         df = df[[self.source_column, self.header_column, self.features_column]]
         self.df = df
         self.filter_df()
-        self.df[self.features_column] = self.transform_to_list(self.df[self.features_column])
 
         self.src_tokenizer, self.md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
         self.src_vocab = self.vocab_factory(
