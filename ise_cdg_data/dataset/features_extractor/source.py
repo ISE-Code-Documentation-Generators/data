@@ -10,7 +10,8 @@ class SourceFeaturesExtractor(FeaturesExtractor):
         pass
 
     def extract(self, source_column: "pd.Series") -> "pd.Series":
-        df = pd.DataFrame([source_column], columns=['source'])
+        df = pd.DataFrame()
+        df['source'] = source_column
         self.extract_feature_columns(code_df=df)
         return df.apply(self.aggregate_features, axis=1)
 
