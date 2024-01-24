@@ -19,6 +19,8 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
 
     @classmethod
     def extract_headers(cls, markdown_text):
+        print('markdown text')
+        print(markdown_text)
         # Parse the Markdown text using the markdown package
         html_text = markdown.markdown(markdown_text)
         
