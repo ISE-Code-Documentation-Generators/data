@@ -50,7 +50,8 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         self.filter_df()
         if compute_features:
             self.df[self.features_column] = get_source_features_extractor().extract(self.df['source'])
-        self.df[self.features_column] = self.df[self.features_column].apply(eval)
+        else:
+            self.df[self.features_column] = self.df[self.features_column].apply(eval)
         
         self.df = self.df[[self.source_column, self.md_column, self.features_column]]
 
