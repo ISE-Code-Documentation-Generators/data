@@ -42,7 +42,8 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         df = pd.read_csv(self.path)
 
         df = df[df['markdown'].apply(type) == str] # null markdown exists :)
-        df = df[df['markdown_text'].apply(type) == str] # null markdown exists :)
+        if not self.use_header:
+            df = df[df['markdown_text'].apply(type) == str] # null markdown exists :)
         self.df = df
         if self.use_header:
             self.df = self.add_header_column(self.df)
