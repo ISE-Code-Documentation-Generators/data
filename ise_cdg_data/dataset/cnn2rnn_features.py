@@ -33,7 +33,7 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
     def features(self) -> pd.Series:
         return self.df[self.features_column]        
 
-    def __init__(self, path: str, src_max_length: int, *, use_header: bool=True):
+    def __init__(self, path: str, src_max_length: int, *, use_header: bool=True, compute_features: bool=False):
         super().__init__()
         self.path = path
         self.src_max_length = src_max_length
@@ -47,8 +47,9 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
         if self.use_header:
             self.df = self.add_header_column(self.df)
         self.filter_df()
+        if compute_features:
+            self.df[self.features_column] = get_source_features_extractor().extract(self.df['source'])
         
-        self.df[self.features_column] = get_source_features_extractor().extract(self.df['source'])
         self.df = self.df[[self.source_column, self.md_column, self.features_column]]
 
         self.src_tokenizer, self.md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
