@@ -13,12 +13,13 @@ class SourceFeaturesExtractor(FeaturesExtractor):
         df = pd.DataFrame()
         df['source'] = source_column
         self.extract_feature_columns(code_df=df)
+        df = df.drop(columns=['API', 'source'])
         print("features_types")
         print(self.get_types(df))
         return df.apply(self.aggregate_features, axis=1)
 
     def aggregate_features(self, row):
-        return list(row.drop(columns=['API', 'source']))
+        return list(row)
 
     def get_types(self, df: "pd.DataFrame"):
         types = dict()
