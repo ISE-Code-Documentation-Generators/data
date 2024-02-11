@@ -1,4 +1,6 @@
+import math
 import os
+import random
 
 
 class LazyFileName:
@@ -27,5 +29,15 @@ class LazyFileName:
         self.__set_fields()
         return self.__extension
 
+
 def get_range(batch_size, current_batch, size):
-    return range(current_batch*batch_size, min(size, (current_batch+1)*batch_size))
+    return range(
+        current_batch * batch_size, min(size, (current_batch + 1) * batch_size)
+    )
+
+
+def train_test_split(size: int, test_portion: float):
+    test_size = int(math.ceil(test_portion * size))
+    test_indices = random.sample(range(0, size), test_size)
+    train_indices = [ind for ind in range(0, size) if ind not in test_indices]
+    return train_indices, test_indices
