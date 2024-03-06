@@ -33,27 +33,30 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
     def features(self) -> pd.Series:
         return self.df[self.features_column]        
 
-    def __init__(self, path: str, src_max_length: int, *, use_header: bool=True, compute_features: bool=False):
+    def __init__(self, path: str, src_max_length: int, *, use_header: bool=True, compute_features: bool=False, cache_df: typing.Optional[pd.DataFrame]=None):
         super().__init__()
         self.path = path
         self.src_max_length = src_max_length
         self.use_header = use_header
 
-        df = pd.read_csv(self.path)
+        if cache_df is None:
+            df = pd.read_csv(self.path)
 
-        df = df[df['markdown'].apply(type) == str] # null markdown exists :)
-        if not self.use_header:
-            df = df[df['markdown_text'].apply(type) == str] # null markdown exists :)
-        self.df = df
-        if self.use_header:
-            self.df = self.add_header_column(self.df)
-        self.filter_df()
-        if compute_features:
-            self.df[self.features_column] = get_source_features_extractor().extract(self.df['source'])
+            df = df[df['markdown'].apply(type) == str] # null markdown exists :)
+            if not self.use_header:
+                df = df[df['markdown_text'].apply(type) == str] # null markdown exists :)
+            self.df = df
+            if self.use_header:
+                self.df = self.add_header_column(self.df)
+            self.filter_df()
+            if compute_features:
+                self.df[self.features_column] = get_source_features_extractor().extract(self.df['source'])
+            else:
+                self.df[self.features_column] = self.df[self.features_column].apply(eval)
+            
+            self.df = self.df[[self.source_column, self.md_column, self.features_column]]
         else:
-            self.df[self.features_column] = self.df[self.features_column].apply(eval)
-        
-        self.df = self.df[[self.source_column, self.md_column, self.features_column]]
+            self.df = cache_df
 
         self.src_tokenizer, self.md_tokenizer = get_source_and_markdown_tokenizers(cleanse_markdown=False)
         self.src_vocab = self.vocab_factory(
