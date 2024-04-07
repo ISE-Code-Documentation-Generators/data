@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = '1.6.1'
+VERSION = '1.6.0.7'
 DESCRIPTION = 'To be added in the future'
 
 
@@ -32,8 +32,7 @@ setuptools.setup(
         'markdown>=3.5',
         'beautifulsoup4>=4.12',
         "tqdm>=4.0.0",
-        "radon",
-        "gensim==3.8.3",
+        "radon"
     ],
     classifiers=[
         "Intended Audience :: Science/Research",
