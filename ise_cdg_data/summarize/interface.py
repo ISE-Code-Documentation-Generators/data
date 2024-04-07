@@ -13,3 +13,8 @@ class SummarizerInterface(abc.ABC):
 def get_gensim_summarizer() -> 'SummarizerInterface':
     from ise_cdg_data.summarize.gensim import GensimSummarizer
     return GensimSummarizer()
+
+
+def get_sumy_summarizer(num_sentences) -> 'SummarizerInterface':
+    from ise_cdg_data.summarize.sumy import SumySummarizer
+    return SumySummarizer(num_sentences)
