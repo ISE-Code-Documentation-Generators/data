@@ -16,7 +16,7 @@ class CodeRetrieval(ABC):
         pass
 
     @abstractmethod
-    def get_similar(self, query: str, sim_num: int) -> list:
+    def get_similar(self, query: str) -> list:
         pass
 
     @abstractmethod
