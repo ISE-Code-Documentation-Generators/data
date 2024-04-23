@@ -1,12 +1,9 @@
-import abc
-from enum import Enum
 import typing
 
 import torch
-from torchtext import vocab
 from torch.utils.data import Dataset
-from torch_geometric.data.data import Data as GeoData
 
+from ise_cdg_data.dataset import Md4DefDatasetInterface
 
 class DatasetFilterByIndex(Dataset):
 
@@ -20,3 +17,13 @@ class DatasetFilterByIndex(Dataset):
 
     def __getitem__(self, index) -> typing.Tuple[torch.Tensor, torch.Tensor]:
         return self.dataset[self.indices[index]]
+    
+
+class DatasetFilterByIndexRaw(DatasetFilterByIndex):
+
+
+    def __init__(self, dataset: Md4DefDatasetInterface, indices: typing.List[int]) -> None:
+        super().__init__(dataset, indices)
+
+    def get_raw_item(self, col, index):
+        return self.dataset.df[col].iloc[self.indices[index]]
