@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = "1.6.2.1"
+VERSION = "1.7.0"
 DESCRIPTION = "To be added in the future"
 
 
@@ -35,6 +35,8 @@ setuptools.setup(
         "radon",
         # "gensim==3.8.3", # Not Installable on python 3.10 thus ruining Google Colab
         "sumy==0.11.0",
+        "sentence-transformers",
+        "rank_bm25",
     ],
     classifiers=[
         "Intended Audience :: Science/Research",
