@@ -26,4 +26,6 @@ class DatasetFilterByIndexRaw(DatasetFilterByIndex):
         super().__init__(dataset, indices)
 
     def get_raw_item(self, col, index):
+        if isinstance(self.dataset, DatasetFilterByIndexRaw):
+            return self.dataset.get_raw_item(col, index)
         return self.dataset.df[col].iloc[self.indices[index]]
