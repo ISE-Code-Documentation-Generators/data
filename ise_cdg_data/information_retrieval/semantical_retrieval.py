@@ -16,7 +16,7 @@ class SemanticalRetrieval(CodeRetrieval):
         super().__init__(model_name, code_dataset)
         self._code_emb = [] * len(code_dataset)
         self._model = SentenceTransformer(self._model_path[model_name])
-        self._model.to(device)
+        self._model = self._model.to(device)
         self._is_process = False
 
     def process(self):
