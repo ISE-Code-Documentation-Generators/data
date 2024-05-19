@@ -278,7 +278,8 @@ def eap_score_function_generator(api_column: "pd.Series"):
     eap_dict = dict(collections.Counter(flat_list))
     eap_score_dict = dict(sorted(eap_dict.items(), key=lambda item: item[1], reverse=True))
     # TODO should find max_freq based on the data
-    max_freq = eap_dict['sklearn']
+    # Alireza: Changed here and added condition for when sklearn is not available
+    max_freq = eap_dict['sklearn'] if 'sklearn' in eap_dict else 1
     for k, v in eap_score_dict.items():
         eap_score_dict[k] = v / max_freq
     def eap_score(ap_list):
