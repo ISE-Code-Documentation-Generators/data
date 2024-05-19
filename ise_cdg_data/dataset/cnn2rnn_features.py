@@ -2,6 +2,7 @@ import math
 import typing
 import markdown
 import re
+import numpy as np
 
 import torch
 from torchtext import vocab
@@ -65,9 +66,12 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
                     self.df["source"]
                 )
             else:
-                self.df[self.features_column] = self.df[self.features_column].apply(
-                    eval
-                )
+                if self.features_column in self.df.columns:
+                    self.df[self.features_column] = self.df[self.features_column].apply(
+                        eval
+                    )
+                else:
+                    self.df[self.features_column] = np.random.randint(1, 6, df.shape[0])
             
             extra_cols = extra_cols or []
             self.df = self.df[[self.source_column, self.md_column, self.features_column, *extra_cols]]
