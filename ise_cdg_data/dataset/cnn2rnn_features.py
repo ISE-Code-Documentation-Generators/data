@@ -71,7 +71,7 @@ class CNN2RNNFeaturesDatasetWithPreprocess(Md4DefDatasetInterface):
                         eval
                     )
                 else:
-                    self.df[self.features_column] = np.random.randint(1, 6, df.shape[0])
+                    self.df[self.features_column] = np.random.randint(1, 6, self.df.shape[0])
             
             extra_cols = extra_cols or []
             self.df = self.df[[self.source_column, self.md_column, self.features_column, *extra_cols]]
