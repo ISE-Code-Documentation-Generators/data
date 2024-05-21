@@ -11,9 +11,9 @@ class CodeMetricRetrieval(CodeRetrieval):
 
     def __init__(self, model_name: str, code_dataset: list, device: torch.device):
         super().__init__(model_name, code_dataset)
-        self._code_emb = None  
+        self._code_emb = None
         self._device = device
-    
+
     def process(self):
         raise Exception("Not possible to process. use `set_emb`")
 
@@ -30,7 +30,7 @@ class CodeMetricRetrieval(CodeRetrieval):
 
         def cosine_similarity(x, y):
             return torch.dot(x, y) / (torch.norm(x) * torch.norm(y))
-        
+
         x = query_tensor
         Y = self._code_emb
 
@@ -38,13 +38,17 @@ class CodeMetricRetrieval(CodeRetrieval):
         scores = [cosine_similarity(x, y_i) for y_i in Y]
 
         # Get sorted indices based on the scores
-        sorted_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
+        sorted_indices = sorted(
+            range(len(scores)), key=lambda i: scores[i], reverse=True
+        )
 
         # Sort scores accordingly
         sorted_scores = [scores[i] for i in sorted_indices]
 
-        result = [{'corpus_id': idx, 'score': score} for idx, score in sorted_scores]
-
+        result = [
+            {"corpus_id": sorted_indices[idx], "score": score}
+            for idx, score in enumerate(sorted_scores)
+        ]
 
         return result
 
