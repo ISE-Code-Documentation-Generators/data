@@ -32,7 +32,7 @@ class SemanticalRetrieval(CodeRetrieval):
         if not self._is_process:
             self.process()
         query_emb = self._model.encode(query, convert_to_tensor=True)
-        hits = util.semantic_search(query_emb, self._code_emb)[0]
+        hits = util.semantic_search(query_emb, self._code_emb, top_k=len(self._code_emb))[0]
         return hits
 
     def get_dataframe(self):
