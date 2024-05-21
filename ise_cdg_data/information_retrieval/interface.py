@@ -37,8 +37,8 @@ def load_semantical_ir_model(code_dataset: list, device: torch.device, embeding:
     return model
 
 
-def load_code_metric_ir_model(code_dataset: list, embeding: list):
+def load_code_metric_ir_model(code_dataset: list, device: torch.device, embeding: list):
     from ise_cdg_data.information_retrieval.code_metric_retrieval import CodeMetricRetrieval
-    model = CodeMetricRetrieval('code metric', code_dataset)
+    model = CodeMetricRetrieval('code metric', device, code_dataset)
     model.set_emb(embeding)
     return model
