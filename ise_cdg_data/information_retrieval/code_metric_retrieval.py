@@ -22,10 +22,10 @@ class CodeMetricRetrieval(CodeRetrieval):
         self._code_emb = self._code_emb.to(self._device)
         self._is_process = True
 
-    def get_similar(self, query: str) -> list:
+    def get_similar(self, query: list) -> list:
         if not self._is_process:
             self.process()
-        query_tensor = ast.literal_eval(query)
+        query_tensor = torch.tensor(query)
         query_tensor = query_tensor.to(self._device)
 
         def cosine_similarity(x, y):
