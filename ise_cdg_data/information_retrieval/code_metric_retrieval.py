@@ -18,8 +18,7 @@ class CodeMetricRetrieval(CodeRetrieval):
         raise Exception("Not possible to process. use `set_emb`")
 
     def set_emb(self, emb: list):
-        emb_numeric = [ast.literal_eval(e) for e in emb]
-        self._code_emb = torch.tensor(emb_numeric)
+        self._code_emb = torch.tensor(emb)
         self._code_emb = self._code_emb.to(self._device)
         self._is_process = True
 
