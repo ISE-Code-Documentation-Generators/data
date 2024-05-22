@@ -25,32 +25,34 @@ class CodeMetricRetrieval(CodeRetrieval):
     def get_similar(self, query: list) -> list:
         if not self._is_process:
             self.process()
-        query_tensor = torch.tensor(query)
-        query_tensor = query_tensor.to(self._device)
-
-        def cosine_similarity(x, y):
-            return torch.dot(x, y) / (torch.norm(x) * torch.norm(y))
-
-        x = query_tensor
+        
+        # Convert query to a tensor and move it to the device
+        query_tensor = torch.tensor(query, device=self._device).float()
+        
+        # Normalize the query tensor
+        query_tensor = query_tensor / query_tensor.norm(dim=0, keepdim=True)
+        
+        # Normalize the _code_emb tensor along the second dimension
         Y = self._code_emb
-
-        # Calculate cosine similarity scores
-        scores = [cosine_similarity(x, y_i) for y_i in Y]
-
+        Y = Y / Y.norm(dim=1, keepdim=True)
+        
+        # Compute cosine similarity using matrix multiplication
+        scores = torch.matmul(Y, query_tensor)
+        
         # Get sorted indices based on the scores
-        sorted_indices = sorted(
-            range(len(scores)), key=lambda i: scores[i], reverse=True
-        )
-
-        # Sort scores accordingly
-        sorted_scores = [scores[i] for i in sorted_indices]
-
+        sorted_indices = torch.argsort(scores, descending=True)
+        
+        # Gather sorted scores
+        sorted_scores = scores[sorted_indices]
+        
+        # Prepare the result as a list of dictionaries
         result = [
-            {"corpus_id": sorted_indices[idx], "score": score}
-            for idx, score in enumerate(sorted_scores)
+            {"corpus_id": sorted_indices[idx].item(), "score": sorted_scores[idx].item()}
+            for idx in range(len(sorted_scores))
         ]
-
+        
         return result
+
 
     def get_dataframe(self):
         assert self._code_emb is not None, "use `set_emb` first"
